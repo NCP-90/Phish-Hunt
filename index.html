@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> PhishHunt - Phishing Detection Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page">
+        <main class="card" aria-label="PhishHunt phishing awareness tool">
+            <header class="card-header">
+                <a class="brand-link" href="https://www.cyberedt.com" target="_blank" rel="noopener noreferrer" aria-label="Visit CyberEDT website">
+                    <img class="brand-logo" src="assets/images/EDTlogo.jpg" alt="CyberEDT logo">
+                </a>
+                <h1 class="title"> PhishHunt</h1>
+                <p class="subtitle">Educational phishing detection &amp; awareness tool</p>
+                <div class="trust-badge" aria-label="Privacy notice">
+                    🔒 Works offline. No data leaves your browser.
+                </div>
+            </header>
+
+            <section class="scan" aria-label="URL scanner">
+                <div class="mode-toggle" role="tablist" aria-label="Analysis mode">
+                    <button id="modeUrlBtn" class="mode-btn active" role="tab" aria-selected="true">Analyze URL</button>
+                    <button id="modeEmailBtn" class="mode-btn" role="tab" aria-selected="false">Analyze Email</button>
+                </div>
+
+                <label class="field-label" id="urlLabel" for="urlInput">Website address (URL)</label>
+                <div class="input-row">
+                    <input
+                        type="text"
+                        id="urlInput"
+                        class="url-input"
+                        placeholder="Paste a website link to check (example: https://example.com)"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                </div>
+                
+                <label class="field-label hidden" id="emailLabel" for="emailInput">Paste full email text (headers optional)</label>
+                <textarea id="emailInput" class="email-input hidden" placeholder="Paste email text here. Include headers (From:, Subject:, Date:) if available. Do NOT upload files."></textarea>
+
+                <button id="scanBtn" class="scan-btn" type="button">Scan</button>
+                <div class="online-toggle-container">
+                    <label class="toggle" aria-label="Enable online enrichment">
+                        <input type="checkbox" id="onlineToggle" aria-checked="false">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Online Enrichment</span>
+                    <div class="tooltip-container">
+                        <button class="info-tooltip" aria-label="More information" aria-expanded="false" aria-controls="online-tooltip">ℹ️</button>
+                        <div id="online-tooltip" class="tooltip-content" role="tooltip">
+                            <p>Go online for more accuracy. This will fetch WHOIS, DNS, and reputation data from trusted sources.</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="helper">Tip: This tool checks URL patterns only. Always verify the website and sender.</p>
+                <button id="testApiBtn" class="test-btn" style="margin-top: 10px; padding: 5px 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Test API Connection</button>
+            </section>
+
+            <section id="resultSection" class="result-section hidden" aria-label="Scan results">
+                <div class="result-header">
+                    <div class="result-left">
+                        <h2 class="section-title">Results</h2>
+                        <div id="verdictBadge" class="verdict-badge" aria-label="Verdict"></div>
+                    </div>
+                    <button id="downloadReportBtn" class="scan-btn download-btn hidden" type="button" aria-hidden="true" aria-label="Download full analysis report">Download Report (.md)</button>
+                </div>
+
+                <div class="score-container" aria-label="Risk score">
+                    <div class="score-label">Risk score</div>
+                    <div id="riskScore" class="score">0</div>
+                    <div class="score-bar" aria-hidden="true">
+                        <div id="scoreFill" class="score-fill"></div>
+                    </div>
+                </div>
+
+                <section id="confidence" class="panel confidence" aria-label="Detection confidence">
+                    <h3 class="panel-title">🎯 Detection Confidence</h3>
+                    <div class="confidence-row">
+                        <span class="confidence-label">Detection Confidence:</span>
+                        <span id="confidenceBadge" class="confidence-badge">—</span>
+                    </div>
+                    <p id="confidenceText" class="confidence-text"></p>
+                </section>
+
+                <div class="result-grid">
+                    <section id="redFlags" class="panel red-flags">
+                        <h3 class="panel-title">Red flags detected</h3>
+                        <ul id="redFlagsList"></ul>
+                    </section>
+
+                    <section id="urlBreakdown" class="panel url-breakdown" aria-label="URL breakdown">
+                        <h3 class="panel-title">🔍 URL Breakdown</h3>
+                        <div id="urlBreakdownView" class="url-breakdown-view" aria-label="URL parts"></div>
+                        <p class="url-breakdown-note">Highlighted parts are signals that often appear in phishing links.</p>
+                    </section>
+
+                    <section id="emailSummary" class="panel email-summary hidden" aria-label="Email summary">
+                        <h3 class="panel-title">📧 Email Details</h3>
+                        <div id="emailSummaryContent" class="email-summary-content"></div>
+                    </section>
+
+                    <section id="attackerIntent" class="panel attacker-intent">
+                        <h3 class="panel-title">🧠 What the attacker is trying to do</h3>
+                        <ul id="attackerIntentList"></ul>
+                    </section>
+
+                    <section id="fingerprint" class="panel fingerprint">
+                        <h3 class="panel-title">🧬 Phishing Pattern Fingerprint</h3>
+                        <div class="fingerprint-row">
+                            <span class="fingerprint-label">Pattern:</span>
+                            <code id="fingerprintValue" class="fingerprint-value">—</code>
+                        </div>
+                        <div class="fingerprint-decoded">
+                            <h4 class="micro-title">Decoded meaning</h4>
+                            <ul id="fingerprintDecodedList"></ul>
+                        </div>
+                    </section>
+
+                    <section id="explanation" class="panel explanation">
+                        <h3 class="panel-title">Why this matters</h3>
+                        <p id="explanationText"></p>
+                    </section>
+
+                    <section id="psychology" class="panel psychology" aria-label="Why people fall for this">
+                        <h3 class="panel-title">🧠 Why people fall for this</h3>
+                        <ul id="psychologyList"></ul>
+                    </section>
+
+                    <section id="recommendations" class="panel recommendations">
+                        <h3 class="panel-title">What to do next</h3>
+                        <p id="nextStepsText" class="next-steps-text"></p>
+                        <ul id="recommendationsList"></ul>
+                    </section>
+
+                    <section id="education" class="panel education">
+                        <h3 class="panel-title">📚 Learn About Phishing</h3>
+                        <div id="educationContent" class="education-content"></div>
+                    </section>
+
+                    <section id="onlineIntelligence" class="panel online-intelligence hidden" aria-label="Online Intelligence">
+                        <h3 class="panel-title">🌐 Online Intelligence</h3>
+                        <div id="onlineStatus" class="online-status">
+                            <div class="loading-spinner"></div>
+                            <p>Enabling online mode will fetch WHOIS, DNS, and reputation data.</p>
+                        </div>
+                        <div id="onlineResults" class="online-results"></div>
+                    </section>
+                </div>
+            </section>
+
+            <footer class="card-footer">
+                <p><strong>Educational use only.</strong> This checker cannot guarantee a link is safe.</p>
+                <p class="muted">Part of the CyberEDT cybersecurity education platform.</p>
+                <p class="muted">© 2024 CyberEDT. All rights reserved</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
